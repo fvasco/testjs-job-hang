@@ -1,0 +1,64 @@
+buildscript {
+    ext.kotlin_version = '1.2.71'
+    ext.kotlinx_coroutines_version = '0.26.1'
+
+    repositories {
+        jcenter()
+        maven { url "https://plugins.gradle.org/m2/" }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
+    }
+}
+
+apply plugin: 'kotlin2js'
+apply plugin: 'com.moowork.node'
+
+compileKotlin2Js {
+    kotlinOptions.outputFile = "${projectDir}/build/lambda/lambda.js"
+}
+[compileKotlin2Js, compileTestKotlin2Js]*.configure {
+    kotlinOptions.moduleKind = "commonjs"
+    kotlinOptions.sourceMap = true
+    kotlinOptions.sourceMapEmbedSources = "always"
+}
+compileKotlin2Js.doLast {
+    copy {
+        from "${projectDir}/build/lambda/lambda.js"
+        into "${projectDir}/node_modules"
+    }
+    copy {
+        from "${projectDir}/build/lambda/lambda.js.map"
+        into "${projectDir}/node_modules"
+    }
+}
+
+kotlin {
+    experimental {
+        coroutines 'enable'
+    }
+}
+
+node {
+    version = "8.10.0"
+    download = true
+}
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js"
+    testCompile "org.jetbrains.kotlin:kotlin-test-js"
+    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:$kotlinx_coroutines_version"
+}
+
+
+task runMocha(type: NodeTask) {
+    script = file('node_modules/mocha/bin/mocha')
+    args = ['--exit', '-t', '11000', compileTestKotlin2Js.outputFile]
+}
+test.dependsOn runMocha
