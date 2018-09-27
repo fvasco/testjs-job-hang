@@ -5,11 +5,11 @@
   "author": "",
   "license": "",
   "dependencies": {
-    "kotlin": "1.2.71",
-    "kotlinx-coroutines-core": "0.26.1"
+    "kotlin": "1.2.70",
+    "kotlinx-coroutines-core": "0.27.0"
   },
   "devDependencies": {
-    "kotlin-test": "1.2.71",
+    "kotlin-test": "1.2.70",
     "mocha": "5.2.0"
   }
 }
